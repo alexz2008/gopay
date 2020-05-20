@@ -148,12 +148,12 @@ func getReleaseSign(apiKey string, signType string, bm gopay.BodyMap) (sign stri
 }
 
 // 获取微信支付沙箱环境Sign值
-func getSignBoxSign(mchId, apiKey string, bm gopay.BodyMap) (sign string, err error) {
+func getSignBoxSign(mchId, apiKey string, signType string, bm gopay.BodyMap) (sign string, err error) {
 	var (
 		sandBoxApiKey string
 		h             hash.Hash
 	)
-	if sandBoxApiKey, err = getSanBoxKey(mchId, gopay.GetRandomString(32), apiKey, SignType_MD5); err != nil {
+	if sandBoxApiKey, err = getSanBoxKey(mchId, gopay.GetRandomString(32), apiKey, signType); err != nil {
 		return
 	}
 	h = md5.New()

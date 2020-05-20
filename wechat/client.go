@@ -525,7 +525,7 @@ func (w *Client) doSanBoxPost(bm gopay.BodyMap, path string) (bs []byte, err err
 
 	if bm.Get("sign") == gopay.NULL {
 		bm.Set("sign_type", SignType_MD5)
-		sign, err := getSignBoxSign(w.MchId, w.ApiKey, bm)
+		sign, err := getSignBoxSign(w.MchId, w.ApiKey, SignType_MD5, bm)
 		if err != nil {
 			return nil, err
 		}
