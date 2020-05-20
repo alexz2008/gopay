@@ -177,7 +177,7 @@ func DecryptRefundNotifyReqInfo(reqInfo, apiKey string) (refundNotify *RefundNot
 //    bean：微信同步返回的结构体 wxRsp 或 异步通知解析的结构体 notifyReq，推荐通 BodyMap 验签
 //    返回参数ok：是否验签通过
 //    返回参数err：错误信息
-func VerifySign(apiKey, signType string, bean interface{}) (ok bool, err error) {
+func VerifySign(mchId, apiKey, signType string, bean interface{}, isProd bool) (ok bool, err error) {
 	if bean == nil {
 		return false, errors.New("bean is nil")
 	}
@@ -186,7 +186,17 @@ func VerifySign(apiKey, signType string, bean interface{}) (ok bool, err error) 
 		bm := bean.(gopay.BodyMap)
 		bodySign := bm.Get("sign")
 		bm.Remove("sign")
-		sign := getReleaseSign(apiKey, signType, bm)
+		sign := ""
+		var err error
+		if isProd {
+			sign = getReleaseSign(apiKey, signType, bm)
+		} else {
+			sign, err = getSignBoxSign(mchId, apiKey, signType, bm)
+			if err != nil {
+				fmt.Println("getSignBoxSign:" + err.Error())
+				return false, err
+			}
+		}
 		return sign == bodySign, nil
 	}
 
@@ -200,7 +210,22 @@ func VerifySign(apiKey, signType string, bean interface{}) (ok bool, err error) 
 	}
 	bodySign := bm.Get("sign")
 	bm.Remove("sign")
-	sign := getReleaseSign(apiKey, signType, bm)
+
+	sign := ""
+	// sign = getReleaseSign(apiKey, signType, bm)
+	if isProd {
+		sign = getReleaseSign(apiKey, signType, bm)
+	} else {
+		sign, err = getSignBoxSign(mchId, apiKey, signType, bm)
+		if err != nil {
+			fmt.Println("getSignBoxSign:" + err.Error())
+			return false, err
+		}
+	}
+
+	fmt.Println("my sign=", sign, "wx sign=", bodySign)
+
+	// sign := getReleaseSign(apiKey, signType, bm)
 	return sign == bodySign, nil
 }
 
